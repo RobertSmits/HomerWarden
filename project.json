@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "description": "HomerWarden - Linkwarden to Homer Dashboard Sync Service",
+  "authors": [
+    "RobertSmits"
+  ],
+  "license": "MIT"
+}
