@@ -4,7 +4,7 @@ namespace Homerwarden;
 
 public static class MetadataExtensions
 {
-    public static Dictionary<string, object?> ExtractMetadata(this string? description)
+    public static Dictionary<string, JsonElement> ExtractMetadata(this string? description)
     {
         if (string.IsNullOrEmpty(description))
         {
@@ -13,12 +13,12 @@ public static class MetadataExtensions
 
         try
         {
-            return JsonSerializer.Deserialize<Dictionary<string, object?>>(description) ?? [];
+            return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(description) ?? [];
         }
         catch
         {
             // Not JSON, try simple key:value format
-            var metadata = new Dictionary<string, object?>();
+            var metadata = new Dictionary<string, JsonElement>();
             var pairs = description.Split(',');
 
             foreach (var pair in pairs)
@@ -29,7 +29,7 @@ public static class MetadataExtensions
                     var key = keyValue[0].Trim();
                     var value = keyValue[1].Trim();
 
-                    metadata[key] = value;
+                    metadata[key] = JsonSerializer.SerializeToElement(value);
                 }
             }
 

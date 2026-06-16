@@ -28,7 +28,7 @@ public sealed class HomerConfigService
             {
                 Name = bookmark.Name,
                 Url = bookmark.Url,
-                Icon = bookmark.ExtensionData.GetValueOrDefault("icon")?.ToString(),
+                Icon = bookmark.ExtensionData.GetValueOrDefault("icon").ToString(),
             };
             links.Add(link);
         }
@@ -39,7 +39,7 @@ public sealed class HomerConfigService
             var service = new HomerCategory
             {
                 Name = subCollection.Name,
-                Icon = subCollection.ExtensionData.GetValueOrDefault("icon")?.ToString(),
+                Icon = subCollection.ExtensionData.GetValueOrDefault("icon").ToString(),
                 Items = [],
             };
 
@@ -113,14 +113,14 @@ public sealed class HomerConfigService
         }
     }
 
-    private static int GetSortOrder(Dictionary<string, object?> metadata)
+    private static int GetSortOrder(Dictionary<string, JsonElement> metadata)
     {
         var orderValue = metadata.GetValueOrDefault("order");
-        if (orderValue is null)
+        return orderValue.ValueKind switch
         {
-            return int.MaxValue;
-        }
-
-        return Convert.ToInt32(orderValue.ToString());
+            JsonValueKind.Number => orderValue.GetInt32(),
+            JsonValueKind.String when int.TryParse(orderValue.GetString(), out var parsedOrder) => parsedOrder,
+            _ => int.MaxValue
+        };
     }
 }

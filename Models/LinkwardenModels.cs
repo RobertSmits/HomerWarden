@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Homerwarden;
 
 namespace HomerWarden.Models;
@@ -11,7 +12,7 @@ public class LinkwardenCollection
     public List<LinkwardenCollection> Children { get; set; } = [];
     public List<LinkwardenBookmark> Bookmarks { get; set; } = [];
     
-    public Dictionary<string, object?> ExtensionData { 
+    public Dictionary<string, JsonElement> ExtensionData { 
         get => field ??= Description.ExtractMetadata();
         set => field = value ??= [];
      }
@@ -26,7 +27,7 @@ public class LinkwardenBookmark
     public int CollectionId { get; set; }
     public List<LinkwardenTag> Tags { get; set; } = [];
 
-    public Dictionary<string, object?> ExtensionData { 
+    public Dictionary<string, JsonElement> ExtensionData { 
         get => field ??= Description.ExtractMetadata();
         set;
     }
