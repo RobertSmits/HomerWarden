@@ -25,7 +25,7 @@ public static class BookmarkMapper
             Logo = bookmark.ExtensionData.GetStringOrDefault("logo")!,
             Target = bookmark.ExtensionData.GetStringOrDefault("target", "_blank"),
             Quick = quick.ValueKind is JsonValueKind.Array 
-                ? JsonSerializer.Deserialize<HomerLink[]>(quick)
+                ? JsonSerializer.Deserialize(quick, AppJsonSerializerContext.Default.HomerLinkArray)
                 : [],
             Tag = existingTag?.Tag,
             Tagstyle = existingTag?.TagStyle,
@@ -35,7 +35,7 @@ public static class BookmarkMapper
         {
             item.ExtensionData = bookmark.ExtensionData
                 .Where(kvp => !IsKnownProperty(kvp.Key))
-                .ToDictionary(kvp => kvp.Key, kvp => JsonSerializer.SerializeToElement(kvp.Value));
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         return item;

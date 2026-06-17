@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: homerwarden
+    user: 1000:1000
     environment:
       LINKWARDEN_API_URL: ${LINKWARDEN_API_URL:-https://linkwarden.example.com}
       LINKWARDEN_API_KEY: ${LINKWARDEN_API_KEY:-your-api-key}

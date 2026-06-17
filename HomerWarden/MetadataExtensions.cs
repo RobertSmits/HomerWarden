@@ -13,27 +13,11 @@ public static class MetadataExtensions
 
         try
         {
-            return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(description) ?? [];
+            return JsonSerializer.Deserialize(description, AppJsonSerializerContext.Default.DictionaryStringJsonElement) ?? [];
         }
         catch
         {
-            // Not JSON, try simple key:value format
-            var metadata = new Dictionary<string, JsonElement>();
-            var pairs = description.Split(',');
-
-            foreach (var pair in pairs)
-            {
-                var keyValue = pair.Split(':', 2);
-                if (keyValue.Length == 2)
-                {
-                    var key = keyValue[0].Trim();
-                    var value = keyValue[1].Trim();
-
-                    metadata[key] = JsonSerializer.SerializeToElement(value);
-                }
-            }
-
-            return metadata;
+            return [];
         }
     }
 }

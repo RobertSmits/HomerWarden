@@ -39,14 +39,13 @@ public sealed class LinkwardenService
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
 
-        var content = await response.Content.ReadAsStringAsync();
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var apiResponse = JsonSerializer.Deserialize<LinkwardenApiResponse<LinkwardenCollection>>(content, options);
+        var content = await response.Content.ReadAsStreamAsync();
+        var apiResponse = JsonSerializer.Deserialize(content, AppJsonSerializerContext.Default.LinkwardenApiResponseLinkwardenCollection);
 
         return apiResponse?.Response ?? [];
     }
 
-    public async Task<List<LinkwardenBookmark>> GetBookmarksByCollectionAsync(int collectionId)
+    private async Task<List<LinkwardenBookmark>> GetBookmarksByCollectionAsync(int collectionId)
     {
         try
         {
@@ -57,9 +56,8 @@ public sealed class LinkwardenService
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
-            var content = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var apiResponse = JsonSerializer.Deserialize<LinkwardenApiData<LinkwardenPagedLinks>>(content, options);
+            var content = await response.Content.ReadAsStreamAsync();
+            var apiResponse = JsonSerializer.Deserialize(content, AppJsonSerializerContext.Default.LinkwardenApiDataLinkwardenPagedLinks);
 
             return apiResponse?.Data?.Links ?? [];
         }
@@ -70,18 +68,19 @@ public sealed class LinkwardenService
         }
     }
 
-    public async Task<LinkwardenCollection?> GetCollectionWithChildrenAsync(LinkwardenCollection collection)
+    public async Task<LinkwardenCollection?> GetCollectionWithChildrenAsync(LinkwardenCollection collection, List<LinkwardenCollection>? allCollections = null)
     {
         // Fetch bookmarks for this collection
         collection.Bookmarks = await GetBookmarksByCollectionAsync(collection.Id);
 
         // Fetch children collections recursively
-        var allCollections = await GetAllCollectionsAsync();
+        allCollections ??= await GetAllCollectionsAsync();
         var childCollections = allCollections.Where(c => c.ParentId == collection.Id).ToList();
 
         foreach (var child in childCollections)
         {
-            collection.Children.Add(await GetCollectionWithChildrenAsync(child) ?? child);
+            var processedChild = await GetCollectionWithChildrenAsync(child, allCollections);
+            collection.Children.Add(processedChild ?? child);
         }
 
         return collection;

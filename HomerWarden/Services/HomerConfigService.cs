@@ -71,14 +71,9 @@ public sealed class HomerConfigService
 
             // Ensure directory exists
             Directory.CreateDirectory(Path.GetDirectoryName(filePath) ?? homerPath);
-            var options = new JsonSerializerOptions
-            {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                WriteIndented = true,
-            };
 
             using var jsonStream = File.Create(filePath);
-            await JsonSerializer.SerializeAsync(jsonStream, config, options);
+            await JsonSerializer.SerializeAsync(jsonStream, config, AppJsonSerializerContext.Default.HomerConfig);
 
             _logger.LogInformation("Saved Homer config to {FilePath}", filePath);
         }
@@ -103,7 +98,7 @@ public sealed class HomerConfigService
         
         try
         {
-            var config = JsonSerializer.Deserialize<HomerConfig>(jsonStream);
+            var config = JsonSerializer.Deserialize(jsonStream, AppJsonSerializerContext.Default.HomerConfig);
             return config ?? new HomerConfig();
         }
         catch (Exception ex)
