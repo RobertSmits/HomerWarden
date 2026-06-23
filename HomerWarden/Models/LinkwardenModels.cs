@@ -1,58 +1,64 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Homerwarden;
 
 namespace HomerWarden.Models;
 
-public class LinkwardenCollection
+public record LinkwardenCollection
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public int? ParentId { get; set; }
-    public List<LinkwardenCollection> Children { get; set; } = [];
-    public List<LinkwardenBookmark> Bookmarks { get; set; } = [];
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public int? ParentId { get; init; }
     
-    public Dictionary<string, JsonElement> ExtensionData { 
-        get => field ??= Description.ExtractMetadata();
-        set => field = value ??= [];
-     }
-}
+    [JsonIgnore]
+    public List<LinkwardenCollection> Children { get; init; } = [];
 
-public class LinkwardenBookmark
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Url { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public int CollectionId { get; set; }
-    public List<LinkwardenTag> Tags { get; set; } = [];
+    [JsonIgnore]
+    public List<LinkwardenBookmark> Bookmarks { get; init; } = [];
 
-    public Dictionary<string, JsonElement> ExtensionData { 
+    public Dictionary<string, JsonElement> ExtensionData
+    {
         get => field ??= Description.ExtractMetadata();
         set;
     }
 }
 
-public class LinkwardenTag
+public record LinkwardenBookmark
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Url { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public int CollectionId { get; init; }
+    public List<LinkwardenTag> Tags { get; init; } = [];
+
+    public Dictionary<string, JsonElement> ExtensionData { 
+        get => field ??= Description.ExtractMetadata();
+        init;
+    }
 }
 
-public class LinkwardenPagedLinks
+public record LinkwardenTag
 {
-    public List<LinkwardenBookmark> Links { get; set; } = [];
-    public int? NextCursor { get; set; }
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
 }
 
-public class LinkwardenApiData<T>
+public record LinkwardenPagedLinks
 {
-    public T Data { get; set; } = default!;
-    public bool Success { get; set; }
-    public string Message { get; set; } = string.Empty; 
+    public List<LinkwardenBookmark> Links { get; init; } = [];
+    public int? NextCursor { get; init; }
 }
 
-public class LinkwardenApiResponse<T>
+public record LinkwardenApiData<T>
 {
-    public List<T> Response { get; set; } = [];
+    public T Data { get; init; } = default!;
+    public bool Success { get; init; }
+    public string Message { get; init; } = string.Empty; 
+}
+
+public record LinkwardenApiResponse<T>
+{
+    public List<T> Response { get; init; } = [];
 }

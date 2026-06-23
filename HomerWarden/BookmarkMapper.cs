@@ -13,7 +13,7 @@ public static class BookmarkMapper
     public static HomerService ToHomerItem(this LinkwardenBookmark bookmark, Dictionary<string, HomerTag> tags)
     {
         var tagName = ExtractHomerTag(bookmark.Tags);
-        var existingTag = tags?.GetValueOrDefault(tagName ?? string.Empty);
+        var existingTag = tags.GetValueOrDefault(tagName ?? string.Empty);
         var quick = bookmark.ExtensionData.GetValueOrDefault("quick");
 
         var item = new HomerService
@@ -24,19 +24,15 @@ public static class BookmarkMapper
             Keywords = bookmark.ExtensionData.GetStringOrDefault("keywords"),
             Logo = bookmark.ExtensionData.GetStringOrDefault("logo")!,
             Target = bookmark.ExtensionData.GetStringOrDefault("target", "_blank"),
-            Quick = quick.ValueKind is JsonValueKind.Array 
-                ? JsonSerializer.Deserialize(quick, AppJsonSerializerContext.Default.HomerLinkArray)
+            Quick = quick.ValueKind is JsonValueKind.Array
+                ? quick.Deserialize(AppJsonSerializerContext.Default.HomerLinkArray)
                 : [],
             Tag = existingTag?.Tag,
-            Tagstyle = existingTag?.TagStyle,
-        };
-
-        if (bookmark.ExtensionData is not null)
-        {
-            item.ExtensionData = bookmark.ExtensionData
+            TagStyle = existingTag?.TagStyle,
+            ExtensionData = bookmark.ExtensionData
                 .Where(kvp => !IsKnownProperty(kvp.Key))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        }
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+        };
 
         return item;
     }
@@ -46,7 +42,7 @@ public static class BookmarkMapper
     [return: NotNullIfNotNull(nameof(fallback))]
     public static string? GetStringOrDefault(this Dictionary<string, JsonElement> data, string key, string? fallback = default)
     {
-        if (data != null && data.TryGetValue(key, out var element) 
+        if (data.TryGetValue(key, out var element) 
             && element.ValueKind != JsonValueKind.Undefined 
             && element.ValueKind != JsonValueKind.Null)
         {

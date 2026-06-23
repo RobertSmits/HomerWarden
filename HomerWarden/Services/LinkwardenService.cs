@@ -68,21 +68,22 @@ public sealed class LinkwardenService
         }
     }
 
-    public async Task<LinkwardenCollection?> GetCollectionWithChildrenAsync(LinkwardenCollection collection, List<LinkwardenCollection>? allCollections = null)
+    public async Task<LinkwardenCollection> GetCollectionWithChildrenAsync(LinkwardenCollection collection, List<LinkwardenCollection>? allCollections = null)
     {
         // Fetch bookmarks for this collection
-        collection.Bookmarks = await GetBookmarksByCollectionAsync(collection.Id);
-
+        var bookmarks = await GetBookmarksByCollectionAsync(collection.Id);
+        var updatedCollection = collection with { Bookmarks = bookmarks };
+        
         // Fetch children collections recursively
         allCollections ??= await GetAllCollectionsAsync();
-        var childCollections = allCollections.Where(c => c.ParentId == collection.Id).ToList();
+        var childCollections = allCollections.Where(c => c.ParentId == updatedCollection.Id).ToList();
 
         foreach (var child in childCollections)
         {
             var processedChild = await GetCollectionWithChildrenAsync(child, allCollections);
-            collection.Children.Add(processedChild ?? child);
+            updatedCollection.Children.Add(processedChild);
         }
 
-        return collection;
+        return updatedCollection;
     }
 }

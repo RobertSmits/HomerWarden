@@ -33,18 +33,12 @@ public sealed class SyncService
 
                 // Fetch full collection hierarchy with bookmarks
                 var fullCollection = await _linkwardenService.GetCollectionWithChildrenAsync(collection);
-                if (fullCollection is null)
-                {
-                    _logger.LogWarning("Failed to fetch collection {CollectionName}", collection.Name);
-                    continue;
-                }
-
                 var existingConfig = await _homerConfigService.LoadConfigAsync(configName);
-                var newConfig = await _homerConfigService.UpdateConfigFromCollectionAsync(existingConfig, fullCollection);
+                var newConfig = await _homerConfigService.CreateConfigFromCollectionAsync(existingConfig, fullCollection);
                 
                 // Save merged config
-                await _homerConfigService.SaveConfigAsync(configName, existingConfig);
-                _logger.LogInformation("Synced {ConfigName}.yml with {ServiceCount} categories", configName, existingConfig.Services.Count);
+                await _homerConfigService.SaveConfigAsync(configName, newConfig);
+                _logger.LogInformation("Synced {ConfigName}.yml with {ServiceCount} categories", configName, newConfig.Services.Count);
             }
 
             _logger.LogInformation("Sync completed successfully");

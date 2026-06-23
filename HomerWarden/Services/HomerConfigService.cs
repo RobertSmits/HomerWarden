@@ -1,7 +1,6 @@
 using Homerwarden;
 using HomerWarden.Models;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace HomerWarden.Services;
 
@@ -16,7 +15,7 @@ public sealed class HomerConfigService
         _configuration = configuration;
     }
 
-    public async Task<HomerConfig> UpdateConfigFromCollectionAsync(HomerConfig existingConfig, LinkwardenCollection collection)
+    public async Task<HomerConfig> CreateConfigFromCollectionAsync(HomerConfig existingConfig, LinkwardenCollection collection)
     {
         var links = new List<HomerLink>();
         var services = new List<HomerCategory>();
@@ -57,10 +56,7 @@ public sealed class HomerConfigService
             }
         }
 
-        existingConfig.Links = links;
-        existingConfig.Services = services;
-
-        return existingConfig;
+        return existingConfig with { Links = links, Services = services };
     }
 
     public async Task SaveConfigAsync(string configName, HomerConfig config)
