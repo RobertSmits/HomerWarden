@@ -29,6 +29,7 @@ public sealed class HomerConfigService
                 Name = bookmark.Name,
                 Url = bookmark.Url,
                 Icon = bookmark.ExtensionData.GetValueOrDefault("icon").ToString(),
+                Target = bookmark.ExtensionData.GetStringOrDefault("target", "_blank"),
             };
             links.Add(link);
         }
