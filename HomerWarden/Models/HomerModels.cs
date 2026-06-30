@@ -21,7 +21,7 @@ public record HomerConfig
     public string Footer { get; init; } = string.Empty;
 
     [JsonPropertyName("columns")]
-    public int Columns { get; init; } = 3;
+    public string Columns { get; init; } = "3";
 
     [JsonPropertyName("connectivityCheck")]
     public bool ConnectivityCheck { get; init; } = true;
